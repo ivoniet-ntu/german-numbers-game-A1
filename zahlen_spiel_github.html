@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahlen Spiel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --teal-50:  #E1F5EE;
+            --teal-100: #9FE1CB;
+            --teal-400: #1D9E75;
+            --teal-600: #0F6E56;
+            --teal-800: #085041;
+            --teal-900: #04342C;
+
+            --blue-50:  #E6F1FB;
+            --blue-400: #378ADD;
+            --blue-600: #185FA5;
+            --blue-800: #0C447C;
+
+            --amber-50:  #FAEEDA;
+            --amber-400: #EF9F27;
+            --amber-600: #854F0B;
+            --amber-800: #633806;
+
+            --coral-50:  #FAECE7;
+            --coral-400: #D85A30;
+            --coral-600: #993C1D;
+            --coral-800: #712B13;
+
+            --purple-50:  #EEEDFE;
+            --purple-100: #CECBF6;
+            --purple-200: #AFA9EC;
+            --purple-400: #7F77DD;
+            --purple-600: #534AB7;
+            --purple-800: #3C3489;
+            --purple-900: #26215C;
+
+            --green-50:  #EAF3DE;
+            --green-400: #639922;
+            --green-600: #3B6D11;
+            --green-800: #27500A;
+
+            --red-50:  #FCEBEB;
+            --red-400: #E24B4A;
+            --red-600: #A32D2D;
+            --red-800: #791F1F;
+
+            --gray-50:  #F1EFE8;
+            --gray-100: #D3D1C7;
+            --gray-400: #888780;
+            --gray-600: #5F5E5A;
+            --gray-800: #444441;
+            --gray-900: #2C2C2A;
+
+            --bg: #FAFAF8;
+            --surface: #FFFFFF;
+            --border: rgba(0,0,0,0.08);
+            --border-md: rgba(0,0,0,0.14);
+            --text: #1A1A18;
+            --text-2: #5A5A56;
+            --text-3: #9A9A96;
+            --radius: 10px;
+            --radius-lg: 14px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 560px;
+        }
+
+        /* ── SCREENS ── */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ── START SCREEN ── */
+        .game-header {
+            margin-bottom: 2rem;
+        }
+        .game-header h1 {
+            font-size: 26px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .game-header p {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.55;
+        }
+
+        .legend {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 1.75rem;
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-2);
+        }
+        .legend-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .section {
+            margin-bottom: 1.5rem;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--text-3);
+            margin-bottom: 9px;
+        }
+        .btn-row {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            border: 0.5px solid var(--border-md);
+            background: var(--surface);
+            color: var(--text);
+            border-radius: var(--radius);
+            padding: 9px 16px;
+            font-size: 13.5px;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.12s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .btn:hover { background: var(--gray-50); }
+        .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+        /* Mode — teal */
+        .btn-mode.sel {
+            background: var(--teal-50);
+            border-color: var(--teal-400);
+            color: var(--teal-800);
+            font-weight: 500;
+        }
+        /* Rounds — blue */
+        .btn-rounds.sel {
+            background: var(--blue-50);
+            border-color: var(--blue-400);
+            color: var(--blue-800);
+            font-weight: 500;
+        }
+        /* Speed — green / amber / coral */
+        .btn-speed-slow.sel  { background: var(--green-50);  border-color: var(--green-400);  color: var(--green-800); font-weight:500; }
+        .btn-speed-norm.sel  { background: var(--amber-50);  border-color: var(--amber-400);  color: var(--amber-800); font-weight:500; }
+        .btn-speed-fast.sel  { background: var(--coral-50);  border-color: var(--coral-400);  color: var(--coral-800); font-weight:500; }
+
+        /* Difficulty — purple ramp */
+        .diff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .btn-diff { justify-content: flex-start; padding: 11px 14px; }
+        .btn-d1.sel { background: var(--purple-50);  border-color: var(--purple-400); color: var(--purple-800); font-weight:500; }
+        .btn-d2.sel { background: var(--purple-100); border-color: var(--purple-600); color: var(--purple-900); font-weight:500; }
+        .btn-d3.sel { background: var(--purple-200); border-color: var(--purple-800); color: var(--purple-900); font-weight:500; }
+        .btn-d4.sel { background: var(--purple-400); border-color: var(--purple-900); color: var(--purple-50);  font-weight:500; }
+
+        .diff-pips { display: flex; gap: 3px; align-items: center; flex-shrink: 0; }
+        .pip {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.2;
+            transition: opacity 0.12s;
+        }
+        .pip.on { opacity: 0.85; }
+
+        .start-btn {
+            width: 100%;
+            background: var(--teal-400);
+            color: var(--teal-50);
+            border: none;
+            border-radius: var(--radius);
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.12s;
+            letter-spacing: 0.01em;
+        }
+        .start-btn:hover { background: var(--teal-600); }
+        .start-btn svg { width: 16px; height: 16px; }
+
+        .copyright {
+            margin-top: 2rem;
+            font-size: 11px;
+            color: var(--text-3);
+            text-align: center;
+            line-height: 1.6;
+            border-top: 0.5px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        /* ── GAME SCREEN ── */
+        .game-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .round-pill {
+            font-size: 13px;
+            color: var(--text-2);
+            background: var(--surface);
+            border: 0.5px solid var(--border);
+            border-radius: 99px;
+            padding: 5px 13px;
+        }
+        .score-pill {
+            font-size: 13px;
+            font-family: 'DM Mono', monospace;
+            color: var(--teal-600);
+            background: var(--teal-50);
+            border: 0.5px solid var(--teal-100);
+            border-radius: 99px;
+            padding: 5px 13px;
+        }
+        .task-label {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            margin-bottom: 1rem;
+        }
+        .task-label.mode-speak { color: var(--teal-600); }
+        .task-label.mode-listen { color: var(--blue-600); }
+
+        /* Speak mode */
+        .big-number {
+            font-family: 'DM Mono', monospace;
+            font-size: 52px;
+            font-weight: 500;
+            color: var(--text);
+            letter-spacing: -1px;
+            text-align: center;
+            background: var(--surface);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 1rem;
+        }
+        .hint-text {
+            font-size: 13px;
+            color: var(--text-3);
+            text-align: center;
+            margin-bottom: 1.25rem;
+            font-style: italic;
+        }
+        .word-solution {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--teal-800);
+            background: var(--teal-50);
+            border: 0.5px solid var(--teal-100);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            text-align: center;
+            margin-bottom: 1rem;
+            word-break: break-all;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .solution-row {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.2s ease;
+        }
+        .solution-row .word-solution {
+            flex: 1;
+            margin-bottom: 0;
+            animation: none;
+        }
+        .btn-listen-inline {
+            background: var(--blue-50);
+            color: var(--blue-800);
+            border: 0.5px solid var(--blue-400);
+            border-radius: var(--radius);
+            padding: 0 16px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: all 0.12s;
+            flex-shrink: 0;
+        }
+        .btn-listen-inline:hover { background: var(--blue-50); filter: brightness(0.93); }
+        .btn-listen-inline.playing {
+            background: var(--blue-400);
+            color: white;
+            border-color: var(--blue-600);
+        }
+        .btn-listen-inline svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+        /* Listen mode */
+        .audio-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: var(--blue-50);
+            color: var(--blue-800);
+            border: 0.5px solid var(--blue-400);
+            border-radius: var(--radius);
+            padding: 16px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            margin-bottom: 1.25rem;
+            transition: background 0.12s;
+        }
+        .audio-btn:hover { background: var(--blue-50); filter: brightness(0.96); }
+        .audio-btn svg { width: 18px; height: 18px; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            margin-bottom: 1rem;
+        }
+        .option-btn {
+            background: var(--surface);
+            color: var(--text);
+            border: 0.5px solid var(--border-md);
+            border-radius: var(--radius);
+            padding: 18px 12px;
+            font-size: 19px;
+            font-weight: 500;
+            font-family: 'DM Mono', monospace;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.12s;
+        }
+        .option-btn:hover:not(:disabled) {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+        .option-btn.correct {
+            background: var(--teal-50);
+            border-color: var(--teal-400);
+            color: var(--teal-800);
+        }
+        .option-btn.wrong {
+            background: var(--red-50);
+            border-color: var(--red-400);
+            color: var(--red-800);
+        }
+
+        /* Feedback */
+        .feedback-bar {
+            border-radius: var(--radius);
+            padding: 11px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.2s ease;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .feedback-bar.correct {
+            background: var(--teal-50);
+            color: var(--teal-800);
+            border: 0.5px solid var(--teal-100);
+        }
+        .feedback-bar.wrong {
+            background: var(--red-50);
+            color: var(--red-800);
+            border: 0.5px solid var(--red-400);
+        }
+        .feedback-bar.empty {
+            background: transparent;
+            border: 0.5px solid transparent;
+        }
+
+        /* Game action buttons */
+        .game-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-reveal {
+            background: var(--purple-50);
+            color: var(--purple-800);
+            border: 0.5px solid var(--purple-400);
+            border-radius: var(--radius);
+            padding: 10px 20px;
+            font-size: 13.5px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.12s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-reveal:hover { background: var(--purple-100); }
+
+        .btn-correct {
+            background: var(--teal-50);
+            color: var(--teal-800);
+            border: 0.5px solid var(--teal-400);
+            border-radius: var(--radius);
+            padding: 10px 18px;
+            font-size: 13.5px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.12s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-correct:hover { background: var(--teal-100, #9FE1CB); }
+
+        .btn-wrong {
+            background: var(--red-50);
+            color: var(--red-800);
+            border: 0.5px solid var(--red-400);
+            border-radius: var(--radius);
+            padding: 10px 18px;
+            font-size: 13.5px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.12s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-wrong:hover { background: var(--red-50); filter: brightness(0.94); }
+
+        .btn-next {
+            background: var(--gray-800);
+            color: var(--gray-50);
+            border: none;
+            border-radius: var(--radius);
+            padding: 10px 22px;
+            font-size: 13.5px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background 0.12s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-next:hover { background: var(--gray-900); }
+
+        /* ── END SCREEN ── */
+        .end-card {
+            background: var(--surface);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .medal {
+            font-size: 64px;
+            line-height: 1;
+            margin-bottom: 1rem;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .cheer {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .final-score {
+            font-size: 14px;
+            color: var(--text-2);
+            margin-bottom: 2rem;
+        }
+        .score-bar-wrap {
+            background: var(--gray-50);
+            border-radius: 99px;
+            height: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+        .btn-back {
+            background: var(--gray-900);
+            color: var(--gray-50);
+            border: none;
+            border-radius: var(--radius);
+            padding: 12px 28px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+        .btn-back:hover { background: var(--gray-600); }
+
+        .hidden { display: none !important; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0%   { transform: scale(0.4); opacity: 0; }
+            80%  { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <div class="game-header">
+            <h1>Zahlen Spiel</h1>
+            <p>Üben Sie deutsche Zahlen bis 1 000 000. Wählen Sie Ihre Einstellungen und starten Sie.</p>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--teal-400)"></div> Modus</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue-400)"></div> Runden</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--amber-400)"></div> Tempo</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--purple-400)"></div> Stufe</div>
+        </div>
+
+        <div class="section">
+            <div class="section-label">1 · Spielmodus</div>
+            <div class="btn-row">
+                <button class="btn btn-mode sel" onclick="setMode('speak',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 18.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13z"/><path d="M9 10c0-1.66 1.34-3 3-3s3 1.34 3 3v2c0 1.66-1.34 3-3 3s-3-1.34-3-3v-2z"/></svg>
+                    Sprechen
+                </button>
+                <button class="btn btn-mode" onclick="setMode('listen',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3v5zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v5z"/></svg>
+                    Hören
+                </button>
+                <button class="btn btn-mode" onclick="setMode('mix',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                    Gemischt
+                </button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-label">2 · Runden</div>
+            <div class="btn-row">
+                <button class="btn btn-rounds sel" onclick="setRounds(10,this)">10 Runden</button>
+                <button class="btn btn-rounds" onclick="setRounds(20,this)">20 Runden</button>
+                <button class="btn btn-rounds" onclick="setRounds(50,this)">50 Runden</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-label">3 · Audio-Tempo</div>
+            <div class="btn-row">
+                <button class="btn btn-speed-slow" onclick="setSpeed(0.6,this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Langsam
+                </button>
+                <button class="btn btn-speed-norm sel" onclick="setSpeed(0.85,this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3"/><line x1="22" y1="4" x2="22" y2="20"/></svg>
+                    Normal (A1)
+                </button>
+                <button class="btn btn-speed-fast" onclick="setSpeed(1.1,this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="3 3 15 12 3 21 3 3"/><polygon points="13 3 25 12 13 21 13 3"/></svg>
+                    Schnell
+                </button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-label">4 · Schwierigkeitsstufe</div>
+            <div class="diff-row">
+                <button class="btn btn-diff btn-d1 sel" onclick="setLevel(1,this)">
+                    <div class="diff-pips"><div class="pip on"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+                    Stufe 1 · Glatte Zahlen
+                </button>
+                <button class="btn btn-diff btn-d2" onclick="setLevel(2,this)">
+                    <div class="diff-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip"></div><div class="pip"></div></div>
+                    Stufe 2 · Medium
+                </button>
+                <button class="btn btn-diff btn-d3" onclick="setLevel(3,this)">
+                    <div class="diff-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div><div class="pip"></div></div>
+                    Stufe 3 · Komplex
+                </button>
+                <button class="btn btn-diff btn-d4" onclick="setLevel(4,this)">
+                    <div class="diff-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div></div>
+                    Stufe 4 · Mix aus allen
+                </button>
+            </div>
+        </div>
+
+        <button class="start-btn" onclick="startGame()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Spiel starten
+        </button>
+
+        <p class="copyright">© <span id="copy-year"></span> Ivo Niethammer · <a href="https://www.italki.com/en/teacher/7208646" target="_blank" style="color: var(--text-3); text-decoration: underline; text-underline-offset: 2px;">italki.com/en/teacher/7208646</a></p>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+        <div class="game-top">
+            <div class="round-pill">Runde <span id="round-val">1</span> / <span id="total-rounds-val">10</span></div>
+            <div class="score-pill">✓ <span id="score-val">0</span></div>
+        </div>
+
+        <div id="task-label" class="task-label mode-speak">Sprechen · Lesen Sie die Zahl laut vor</div>
+
+        <!-- Speak mode -->
+        <div id="speak-container">
+            <div id="number-to-read" class="big-number">-</div>
+            <p class="hint-text">Sprechen Sie die Zahl laut aus. Klicken Sie dann auf „Lösung zeigen".</p>
+            <div id="solution-row" class="solution-row hidden">
+                <div id="word-solution" class="word-solution"></div>
+                <button id="btn-listen-inline" class="btn-listen-inline" onclick="playSpeakAudio(this)" title="Zahl anhören">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    Anhören
+                </button>
+            </div>
+            <div class="game-actions">
+                <button id="reveal-btn" class="btn-reveal" onclick="revealSpeakSolution()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    Lösung zeigen
+                </button>
+                <button id="speak-correct-btn" class="btn-correct hidden" onclick="handleSpeakResult(true)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Ich hatte recht
+                </button>
+                <button id="speak-wrong-btn" class="btn-wrong hidden" onclick="handleSpeakResult(false)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Ich hatte unrecht
+                </button>
+                <button id="next-btn-speak" class="btn-next hidden" onclick="nextRound()">
+                    Weiter
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Listen mode -->
+        <div id="listen-container" class="hidden">
+            <button class="audio-btn" onclick="playAudio()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                Audio hören
+            </button>
+            <div class="options-grid" id="options-container"></div>
+            <div class="game-actions">
+                <button id="next-btn-listen" class="btn-next hidden" onclick="nextRound()">
+                    Weiter
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="feedback" class="feedback-bar empty"></div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="end-screen" class="screen">
+        <div class="end-card">
+            <div id="medal" class="medal"></div>
+            <div id="cheer" class="cheer"></div>
+            <div id="final-score" class="final-score"></div>
+            <div class="score-bar-wrap">
+                <div id="score-bar-fill" class="score-bar-fill" style="width:0%"></div>
+            </div>
+            <button class="btn-back" onclick="resetGame()">Zurück zum Hauptmenü</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let config = { mode: 'speak', rounds: 10, speed: 0.85, level: 1 };
+    let currentRound = 1;
+    let score = 0;
+    let currentNumber = 0;
+    let activeRoundMode = 'speak';
+
+    function setMode(m, btn) { config.mode = m; selectBtn(btn, 'btn-mode'); }
+    function setRounds(r, btn) { config.rounds = r; selectBtn(btn, 'btn-rounds'); }
+    function setSpeed(s, btn) { config.speed = s; selectBtn(btn, ['btn-speed-slow','btn-speed-norm','btn-speed-fast']); }
+    function setLevel(l, btn) { config.level = l; selectBtn(btn, ['btn-d1','btn-d2','btn-d3','btn-d4']); }
+
+    function selectBtn(btn, groupClass) {
+        const classes = Array.isArray(groupClass) ? groupClass : [groupClass];
+        document.querySelectorAll(classes.map(c => '.' + c).join(',')).forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+    }
+
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F');
+    }
+
+    function numberToWord(num) {
+        if (num === 0) return 'null';
+        if (num === 1000000) return 'eine Million';
+        const ones = ['','eins','zwei','drei','vier','fünf','sechs','sieben','acht','neun','zehn','elf','zwölf','dreizehn','vierzehn','fünfzehn','sechzehn','siebzehn','achtzehn','neunzehn'];
+        const tens = ['','','zwanzig','dreißig','vierzig','fünfzig','sechzig','siebzig','achtzig','neunzig'];
+        function u100(n) {
+            if (n < 20) return ones[n];
+            let o = n % 10, t = Math.floor(n / 10);
+            if (o === 0) return tens[t];
+            if (o === 1) return 'einund' + tens[t];
+            return ones[o] + 'und' + tens[t];
+        }
+        function u1000(n) {
+            if (n === 0) return '';
+            let h = Math.floor(n / 100), rem = n % 100;
+            let hw = h > 0 ? (h === 1 ? 'einhundert' : ones[h] + 'hundert') : '';
+            let rw = u100(rem);
+            if (hw && rw === 'eins') return hw + 'eins';
+            return hw + rw;
+        }
+        let th = Math.floor(num / 1000), rem = num % 1000;
+        let thw = th > 0 ? (th === 1 ? 'eintausend' : u1000(th) + 'tausend') : '';
+        let result = thw + u1000(rem);
+        if (result.endsWith('und')) result = result.slice(0, -3);
+        return result;
+    }
+
+    function generateNumber(level) {
+        if (level === 4) level = Math.floor(Math.random() * 3) + 1;
+        switch(level) {
+            case 1: {
+                const pool = [10,50,100,500,1000,5000,10000,25000,50000,100000,250000,500000,750000,1000000];
+                return pool[Math.floor(Math.random() * pool.length)];
+            }
+            case 2: {
+                let n = Math.floor(Math.random()*10)*100000 + Math.floor(Math.random()*10)*10000 + Math.floor(Math.random()*10)*1000 + Math.floor(Math.random()*10)*100;
+                return n === 0 ? 1200 : n;
+            }
+            case 3:
+                return Math.floor(Math.random() * 999999) + 1;
+        }
+    }
+
+    function generateOptions(correct, level) {
+        let opts = [correct];
+        let attempts = 0;
+        while (opts.length < 4 && attempts < 200) {
+            attempts++;
+            let dev;
+            if (level === 1) dev = (Math.floor(Math.random()*5)-2) * 1000;
+            else if (level === 2) dev = (Math.floor(Math.random()*6)-3) * 100;
+            else dev = (Math.floor(Math.random()*20)-10) * (Math.random() > 0.5 ? 1 : 10);
+            let w = correct + dev;
+            if (w > 0 && w <= 1000000 && !opts.includes(w)) opts.push(w);
+        }
+        return opts.sort(() => Math.random() - 0.5);
+    }
+
+    function startGame() {
+        currentRound = 1; score = 0;
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        document.getElementById('total-rounds-val').textContent = config.rounds;
+        document.getElementById('score-val').textContent = '0';
+        setupRound();
+    }
+
+    function setupRound() {
+        document.getElementById('round-val').textContent = currentRound;
+        document.getElementById('score-val').textContent = score;
+        setFeedback('', '');
+
+        currentNumber = generateNumber(config.level);
+        activeRoundMode = config.mode === 'mix' ? (Math.random() > 0.5 ? 'speak' : 'listen') : config.mode;
+
+        const label = document.getElementById('task-label');
+        if (activeRoundMode === 'speak') {
+            label.textContent = 'Sprechen · Lesen Sie die Zahl laut vor';
+            label.className = 'task-label mode-speak';
+            document.getElementById('listen-container').classList.add('hidden');
+            document.getElementById('speak-container').classList.remove('hidden');
+            document.getElementById('number-to-read').textContent = formatNumber(currentNumber);
+            document.getElementById('solution-row').classList.add('hidden');
+            document.getElementById('reveal-btn').classList.remove('hidden');
+            document.getElementById('speak-correct-btn').classList.add('hidden');
+            document.getElementById('speak-wrong-btn').classList.add('hidden');
+            document.getElementById('next-btn-speak').classList.add('hidden');
+        } else {
+            label.textContent = 'Hören · Hören Sie zu und wählen Sie die richtige Zahl';
+            label.className = 'task-label mode-listen';
+            document.getElementById('speak-container').classList.add('hidden');
+            document.getElementById('listen-container').classList.remove('hidden');
+            document.getElementById('next-btn-listen').classList.add('hidden');
+            const opts = generateOptions(currentNumber, config.level);
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            opts.forEach(num => {
+                let b = document.createElement('button');
+                b.className = 'option-btn';
+                b.textContent = formatNumber(num);
+                b.onclick = () => checkAnswer(num, b);
+                container.appendChild(b);
+            });
+            setTimeout(playAudio, 400);
+        }
+    }
+
+    function playAudio() {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            let u = new SpeechSynthesisUtterance(currentNumber.toString());
+            u.lang = 'de-DE';
+            u.rate = config.speed;
+            window.speechSynthesis.speak(u);
+        } else {
+            alert('Ihr Browser unterstützt leider keine Sprachausgabe.');
+        }
+    }
+
+    function revealSpeakSolution() {
+        document.getElementById('reveal-btn').classList.add('hidden');
+        document.getElementById('word-solution').textContent = numberToWord(currentNumber);
+        document.getElementById('solution-row').classList.remove('hidden');
+        document.getElementById('speak-correct-btn').classList.remove('hidden');
+        document.getElementById('speak-wrong-btn').classList.remove('hidden');
+    }
+
+    function playSpeakAudio(btn) {
+        if (!('speechSynthesis' in window)) { alert('Ihr Browser unterstützt leider keine Sprachausgabe.'); return; }
+        window.speechSynthesis.cancel();
+        btn.classList.add('playing');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Läuft…`;
+        let u = new SpeechSynthesisUtterance(currentNumber.toString());
+        u.lang = 'de-DE';
+        u.rate = config.speed;
+        u.onend = () => {
+            btn.classList.remove('playing');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Anhören`;
+        };
+        window.speechSynthesis.speak(u);
+    }
+
+    function handleSpeakResult(correct) {
+        if (correct) { setFeedback('Ausgezeichnet! Weiter so!', 'correct'); score++; }
+        else { setFeedback('Kein Problem — Übung macht den Meister!', 'wrong'); }
+        document.getElementById('speak-correct-btn').classList.add('hidden');
+        document.getElementById('speak-wrong-btn').classList.add('hidden');
+        document.getElementById('next-btn-speak').classList.remove('hidden');
+    }
+
+    function checkAnswer(selected, clickedBtn) {
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        if (selected === currentNumber) {
+            setFeedback('Richtig! Das ist korrekt.', 'correct');
+            clickedBtn.classList.add('correct');
+            score++;
+        } else {
+            setFeedback('Falsch. Die richtige Antwort: ' + numberToWord(currentNumber), 'wrong');
+            clickedBtn.classList.add('wrong');
+            document.querySelectorAll('.option-btn').forEach(b => {
+                if (b.textContent.replace(/\s/g,'') === formatNumber(currentNumber).replace(/\s/g,'')) {
+                    b.classList.add('correct');
+                }
+            });
+        }
+        document.getElementById('next-btn-listen').classList.remove('hidden');
+    }
+
+    function setFeedback(msg, type) {
+        const el = document.getElementById('feedback');
+        el.textContent = msg;
+        el.className = 'feedback-bar ' + (type || 'empty');
+    }
+
+    function nextRound() {
+        document.querySelectorAll('.option-btn').forEach(b => { b.disabled = false; b.className = 'option-btn'; });
+        if (currentRound < config.rounds) { currentRound++; setupRound(); }
+        else { showEndScreen(); }
+    }
+
+    function showEndScreen() {
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('end-screen').classList.add('active');
+        const pct = (score / config.rounds) * 100;
+        const medal = document.getElementById('medal');
+        const cheer = document.getElementById('cheer');
+        const fill  = document.getElementById('score-bar-fill');
+        document.getElementById('final-score').textContent = `${score} von ${config.rounds} Punkten erreicht`;
+        if (pct === 100) {
+            medal.textContent = '🥇'; cheer.textContent = 'Perfekt! Fantastisch!'; cheer.style.color = 'var(--amber-600)';
+            fill.style.background = 'var(--teal-400)';
+        } else if (pct >= 80) {
+            medal.textContent = '🥇'; cheer.textContent = 'Ausgezeichnet! Sehr gut!'; cheer.style.color = 'var(--amber-600)';
+            fill.style.background = 'var(--teal-400)';
+        } else if (pct >= 50) {
+            medal.textContent = '🥈'; cheer.textContent = 'Gut gemacht! Weiter so!'; cheer.style.color = 'var(--blue-600)';
+            fill.style.background = 'var(--blue-400)';
+        } else {
+            medal.textContent = '🥉'; cheer.textContent = 'Guter Versuch! Üben Sie noch einmal.'; cheer.style.color = 'var(--gray-600)';
+            fill.style.background = 'var(--amber-400)';
+        }
+        setTimeout(() => { fill.style.width = pct + '%'; }, 100);
+    }
+
+    function resetGame() {
+        document.getElementById('end-screen').classList.remove('active');
+        document.getElementById('start-screen').classList.add('active');
+    }
+
+    document.getElementById('copy-year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
