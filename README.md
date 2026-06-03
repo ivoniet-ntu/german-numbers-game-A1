@@ -1,6 +1,6 @@
 # Zahlen Spiel 🎯
 
-A free browser-based game for A1 German learners to practice numbers up to 1,000,000 — reading, saying, and recognising them by ear.
+A free browser-based game for A1 German learners to practice numbers up to 1,000,000: reading, saying, and recognising them by ear.
 
 Built for students who need repeated, low-pressure exposure to large German numbers, which follow strict but unfamiliar compounding rules (e.g. *dreiundvierzigtausendachthundertneunundzwanzig*).
 
